@@ -3,8 +3,9 @@
 * 用户注册与登录;
 * 用户项目的增删改查;
 * 项目配置的增删改查以及导出;
+* 网络设备扫描结果与攻击结果的导入, 存储;
+* 扫描与攻击结果的拓扑图展示, 设备筛选过滤与备注;
 * 攻击配置的导出;
-* 网络设备扫描结果与攻击结果的导入, 存储, 以及可视化拓扑图展示;
 
 ### 工作
 
@@ -12,7 +13,7 @@
 * 拟订前后台交互接口;
 * 设计数据库;
 * 实现后台接口;
-* 编写部署文档;
+* 测试, is编写部署文档;
 
 ### 技术栈
 
@@ -235,7 +236,8 @@
 	                "type": "",         // 设备类型: server服务器 , pc个人电脑
 	                "os": "",           // 设备系统LOGO: linux, winOld , winNew
 	                "version": "",      // 设备操作系统版本(linux 为空字符串)
-	                "attacked": false   // 设备是否被攻击
+	                "attacked": false,  // 设备是否被攻击
+	                "remark": ""        // 设备备注信息
 	            },
 	            ...
 	        ]
@@ -249,7 +251,8 @@
 	                "type": "",
 	                "os": "",
 	                "version": "",
-	                "attacked": true
+	                "attacked": true,
+	                "remark": ""  
 	            },
 	            ...
 	        ]
@@ -262,256 +265,279 @@
 
   ```
   // 前后台交互接口
-  
-  const API = [
-  
-    //--------------------登录--------------------------
-    // 登录
-    {
-      url: '/login',
-      type: 'POST',
-      req: {
-        username: '',
-        password: ''
-      },
-      res: {
-        result: 'success',
-        msg: ''
-      }
+
+const API = [
+
+  //--------------------登录--------------------------
+  // 登录
+  {
+    url: '/login',
+    type: 'POST',
+    req: {
+      username: '',
+      password: ''
     },
-  
-    // 退出
-    {
-      url: '/logout',
-      type: 'GET',
-      res: {
-        result: 'success',
-        msg: ''
-      }
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 退出
+  {
+    url: '/logout',
+    type: 'GET',
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 状态检测
+  {
+    url: '/check',
+    type: 'GET',
+    res: {
+      result: 'success',
+      user: '',
+      msg: ''
+    }
+  },
+
+  // 注册
+  {
+    url: '/regist',
+    type: 'POST',
+    req: {
+      username: '',
+      password: ''
     },
-  
-    // 状态检测
-    {
-      url: '/check',
-      type: 'GET',
-      res: {
-        result: 'success',
-        user: '',
-        msg: ''
-      }
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+
+  //--------------------项目--------------------------
+  // 获取
+  {
+    url: '/project',
+    type: 'GET',
+    res: {
+      result: 'success',
+      projects: [
+        {
+          id: '',
+          name: '',
+          remark: '',
+          user: '',
+          date: ''
+        },
+      ]
+    }
+  },
+
+  // 添加
+  {
+    url: '/project',
+    type: 'POST',
+    req: {
+      name: '',
+      remark: '',
+      user: '',
+      date: ''
     },
-  
-    // 注册
-    {
-      url: '/regist',
-      type: 'POST',
-      req: {
-        username: '',
-        password: ''
-      },
-      res: {
-        result: 'success',
-        msg: ''
-      }
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 修改
+  {
+    url: '/project',
+    type: 'POST',
+    req: {
+      id: '',
+      name: '',
+      remark: '',
+      user: '',
+      date: ''
     },
-  
-  
-    //--------------------项目--------------------------
-    // 获取
-    {
-      url: '/project',
-      type: 'GET',
-      res: {
-        result: 'success',
-        projects: [
-          {
-            id: '',
-            name: '',
-            remark: '',
-            user: '',
-            date: ''
-          },
-        ]
-      }
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 删除
+  {
+    url: '/project/ID',
+    type: 'DELETE',
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 获取项目名称
+  {
+    url: '/projectName',
+    type: 'GET',
+    req: 'id',
+    res: {
+      result: 'success',
+      name: ''
+    }
+  },
+
+  //--------------------配置--------------------------
+  // 获取
+  {
+    url: '/config',
+    type: 'GET',
+    req: 'projectID',
+    res: {
+      result: 'success',
+      configs: [
+        {
+          id: '',
+          ipStart: '',
+          ipEnd: '',
+          port: '',
+          thread: '',
+          delay: '',
+          way: ''
+        },
+      ]
+    }
+  },
+
+  // 添加
+  {
+    url: '/config',
+    type: 'POST',
+    req: {
+      projectId: '',
+      ipStart: '',
+      ipEnd: '',
+      port: '',
+      thread: '',
+      delay: '',
+      way: ''
     },
-  
-    // 添加
-    {
-      url: '/project',
-      type: 'POST',
-      req: {
-        name: '',
-        remark: '',
-        user: '',
-        date: ''
-      },
-      res: {
-        result: 'success',
-        msg: ''
-      }
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 修改
+  {
+    url: '/config',
+    type: 'POST',
+    req: {
+      id: '',
+      ipStart: '',
+      ipEnd: '',
+      port: '',
+      thread: '',
+      delay: '',
+      way: ''
     },
-  
-    // 修改
-    {
-      url: '/project',
-      type: 'POST',
-      req: {
-        id: '',
-        name: '',
-        remark: '',
-        user: '',
-        date: ''
-      },
-      res: {
-        result: 'success',
-        msg: ''
-      }
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 删除
+  {
+    url: '/config/ID',
+    type: 'DELETE',
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 生成脚本
+  {
+    url: '/createScanJson',
+    type: 'GET',
+    req: 'projectID',
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+
+  //--------------------扫描与攻击结果-------------------
+  // 根据ID获取扫描与攻击结果
+  {
+    url: '/result/ID',
+    type: 'GET',
+    res: {
+      result: 'success',
+      data: []
+    }
+  },
+
+  // 上传扫描与攻击结果
+  {
+    url: '/uploadConfigJson',
+    type: 'POST',
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  //--------------------拓扑图--------------------------
+  // 生成攻击脚本
+  {
+    url: '/createAttackJson',
+    type: 'POST',
+    req: {},
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+
+  // 下载攻击脚本
+  {
+    url: '/downloadAttackJson',
+    type: 'GET'
+  },
+
+  // ip添加备注信息
+  {
+    url: '/updateIPRemark',
+    type: 'POST',
+    req: {
+      id: [],
+      ip: '',
+      remark: ''
     },
-  
-    // 删除
-    {
-      url: '/project/ID',
-      type: 'DELETE',
-      res: {
-        result: 'success',
-        msg: ''
-      }
-    },
-  
-    //--------------------配置--------------------------
-    // 获取
-    {
-      url: '/config',
-      type: 'GET',
-      req: 'projectID',
-      res: {
-        result: 'success',
-        configs: [
-          {
-            id: '',
-            ipStart: '',
-            ipEnd: '',
-            port: '',
-            thread: '',
-            delay: '',
-            way: ''
-          },
-        ]
-      }
-    },
-  
-    // 添加
-    {
-      url: '/config',
-      type: 'POST',
-      req: {
-        projectId: '',
-        ipStart: '',
-        ipEnd: '',
-        port: '',
-        thread: '',
-        delay: '',
-        way: ''
-      },
-      res: {
-        result: 'success',
-        msg: ''
-      }
-    },
-  
-    // 修改
-    {
-      url: '/config',
-      type: 'POST',
-      req: {
-        id: '',
-        ipStart: '',
-        ipEnd: '',
-        port: '',
-        thread: '',
-        delay: '',
-        way: ''
-      },
-      res: {
-        result: 'success',
-        msg: ''
-      }
-    },
-  
-    // 删除
-    {
-      url: '/config/ID',
-      type: 'DELETE',
-      res: {
-        result: 'success',
-        msg: ''
-      }
-    },
-  
-    // 生成脚本
-    {
-      url: '/createScanJson',
-      type: 'GET',
-      req: 'projectID',
-      res: {
-        result: 'success',
-        msg: ''
-      }
-    },
-  
-  
-    //--------------------扫描与攻击结果-------------------
-    // 根据ID获取扫描与攻击结果
-    {
-      url: '/result/ID',
-      type: 'GET',
-      res: {
-        result: 'success',
-        data: []
-      }
-    },
-  
-    // 上传扫描与攻击结果
-    {
-      url: '/uploadConfigJson',
-      type: 'POST',
-      res: {
-        result: 'success',
-        msg: ''
-      }
-    },
-  
-    // 上传扫描与攻击结果
-    {
-      url: '/getConfigData',
-      type: 'GET',
-      res: {
-        result: 'success',
-        topo: ''
-      }
-    },
-  
-    //--------------------拓扑图--------------------------
-    // 生成攻击脚本
-    {
-      url: '/createAttackJson',
-      type: 'POST',
-      req: {},
-      res: {
-        result: 'success',
-        msg: ''
-      }
-    },
-  
-    // 下载攻击脚本
-    {
-      url: '/downloadAttackJson',
-      type: 'GET'
-    },
-  ]
+    res: {
+      result: 'success',
+      msg: ''
+    }
+  },
+]
+
   
   ```
  
 ### 预览
-  
-![](assets/topo.png)
+* 原型
+![](assets/demo.png)
+
+* B1.0
+![](assets/demo1.png)
+
+* B2.0
+![](assets/demo2.png)

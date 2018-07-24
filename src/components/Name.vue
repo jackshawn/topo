@@ -1,7 +1,7 @@
 <template>
   <div class="header-wrap">
     <div class="header">
-      <div class="categary">XXX 系统</div>
+      <div class="categary">网络设备拓扑图展示系统</div>
 
       <div class="user">
         <Icon icon="user" class="user-icon"></Icon> <span class="username">{{user}}; </span> <span @click="logout" class="logout"> 退出</span>

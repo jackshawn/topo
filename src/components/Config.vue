@@ -1,7 +1,7 @@
 <template>
   <div class="config-wrap">
     <Name/>
-    <BreadCrumb categary="config"></BreadCrumb>
+    <BreadCrumb categary="config" :id="id"></BreadCrumb>
     <div class="config">
       <el-table
         :data="configs"
@@ -65,40 +65,39 @@
     <el-dialog
       title="添加配置"
       :visible.sync="add.show"
-      width="50%">
+      width="600px">
+      <span class="input-label">起始IP:</span>
       <el-input
-        placeholder="起始IP"
+        placeholder="xx.xx.xx.xx"
         v-model="add.ipStart"
+        :suffix-icon="add.ipStart ? checkIP(add.ipStart) ? 'el-icon-check' : 'el-icon-close' : ''"
       >
       </el-input>
       <br>
       <br>
+      <span class="input-label">终止IP:</span>
       <el-input
-        placeholder="终止IP"
+        placeholder="xx.xx.xx.xx"
         v-model="add.ipEnd"
+        :suffix-icon="add.ipEnd ? checkIP(add.ipEnd) ? 'el-icon-check' : 'el-icon-close' : ''"
       >
       </el-input>
       <br>
       <br>
+      <span class="input-label">端 口:</span>
       <el-input
-        placeholder="端口"
+        placeholder="英文逗号分隔,「-」表示范围。例:443,8080,500-3000"
         v-model="add.port"
       >
       </el-input>
       <br>
       <br>
-      <el-input
-        placeholder="线程"
-        v-model="add.thread"
-      >
-      </el-input>
+      <span class="input-label">线 程:</span>
+      <el-input v-model="add.thread"></el-input>
       <br>
       <br>
-      <el-input
-        placeholder="时延"
-        v-model="add.delay"
-      >
-      </el-input>
+      <span class="input-label">时 延:</span>
+      <el-input v-model="add.delay"></el-input>
       <br>
       <br>
       <el-radio v-model="add.way" label="1">策略1</el-radio>
@@ -114,40 +113,39 @@
     <el-dialog
       title="添加配置"
       :visible.sync="edit.show"
-      width="50%">
+      width="600px">
+      <span class="input-label">起始IP:</span>
       <el-input
-        placeholder="起始IP"
+        placeholder="xx.xx.xx.xx"
         v-model="edit.ipStart"
+        :suffix-icon="edit.ipStart ? checkIP(edit.ipStart) ? 'el-icon-check' : 'el-icon-close' : ''"
       >
       </el-input>
       <br>
       <br>
+      <span class="input-label">终止IP:</span>
       <el-input
-        placeholder="终止IP"
+        placeholder="xx.xx.xx.xx"
         v-model="edit.ipEnd"
+        :suffix-icon="edit.ipEnd ? checkIP(edit.ipEnd) ? 'el-icon-check' : 'el-icon-close' : ''"
       >
       </el-input>
       <br>
       <br>
+      <span class="input-label">端 口:</span>
       <el-input
-        placeholder="端口"
+        placeholder="英文逗号分隔,「-」表示范围。例:443,8080,500-3000"
         v-model="edit.port"
       >
       </el-input>
       <br>
       <br>
-      <el-input
-        placeholder="线程"
-        v-model="edit.thread"
-      >
-      </el-input>
+      <span class="input-label">线 程:</span>
+      <el-input v-model="add.thread"></el-input>
       <br>
       <br>
-      <el-input
-        placeholder="时延"
-        v-model="edit.delay"
-      >
-      </el-input>
+      <span class="input-label">时 延:</span>
+      <el-input v-model="edit.delay"></el-input>
       <br>
       <br>
       <el-radio v-model="edit.way" label="1">策略1</el-radio>
@@ -195,8 +193,8 @@
           ipStart: '',
           ipEnd: '',
           port: '',
-          thread: '',
-          delay: '',
+          thread: '4',
+          delay: '600',
           way: '1'
         },
         edit: {
@@ -214,8 +212,8 @@
     methods: {
       getConfigs() {
         let _this = this;
-
         axios.get('/config/' + _this.id).then((res) => {
+//        axios.get('http://localhost:3000/config/' + _this.id).then((res) => {
           if(res.data.result === 'success') {
             _this.configs = res.data.configs;
           } else {
@@ -245,9 +243,9 @@
                 _this.add.ipStart = '';
                 _this.add.ipEnd = '';
                 _this.add.port = '';
-                _this.add.thread = '';
-                _this.add.delay = '';
-                _this.add.way = '';
+                _this.add.thread = '4';
+                _this.add.delay = '600';
+                _this.add.way = '1';
               } else {
                 _this.$message(res.data.msg)
               }
@@ -335,6 +333,9 @@
         }).catch((error) => {
           console.log(error)
         });
+      },
+      checkIP(ip) {
+        return /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(ip)
       }
     },
     mounted() {
@@ -351,5 +352,12 @@
     p {
       text-align: right
     }
+  }
+  .input-label {
+    display: inline-block;
+    width: 50px;
+  }
+  .el-input {
+    width: 480px;
   }
 </style>

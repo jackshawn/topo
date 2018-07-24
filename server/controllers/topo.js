@@ -6,7 +6,7 @@ const checkUserState = require('../utils/check');
 let results = require('../models/result');
 const Busboy = require('busboy');
 
-let result = undefined;
+let result = '';
 
 // 生成攻击脚本
 let createAttackJson = async (ctx, next) => {
@@ -38,7 +38,7 @@ let uploadConfigJson = async (ctx, next) => {
   busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
     file.on('data', function(data) {
       try {
-        result = JSON.stringify(JSON.parse(data.toString().replace(/\s+/g, '')));
+        result += data.toString()
       } catch(e) {
         console.log(e)
       }
@@ -51,34 +51,55 @@ let uploadConfigJson = async (ctx, next) => {
     if(result) {
       results.create({
         projectId: obj.projectId,
-        content: result
+        content: result,
+        type: obj.type === 'scan' ? '扫描结果' : '攻击结果',
+        remark: obj.remark,
       });
     }
+    result = '';
   });
   req.pipe(busboy);
   ctx.body = {result: 'success'}
 };
 
-// 获取扫描结果
-let getConfigData = async (ctx, next) => {
-  if(result) {
+// 更新ip备注
+let updateIPRemark = async (ctx, next) => {
+  let user = checkUserState(ctx);
+  if(user) {
+    let req = ctx.request.body;
+    let id = req.id.split(',')
+    for(let i = 0; i < id.length; i++) {
+      let res = await results.findAll({
+        where: {
+          id: id[i]
+        }
+      });
+      let topo = JSON.parse(res[0].content);
+      topo.forEach(j => {
+        j.devices.forEach(device => {
+          if(device.ip === req.ip) {
+            device.remark = req.remark;
+          }
+        })
+      })
+      await results.update({
+        content: JSON.stringify(topo).replace(/\s+/g, '')
+      }, {
+        where: {
+          id: id[i]
+        }
+      });
+    }
     ctx.response.body = {
       result: 'success',
-      topo: result
-    }
-    result = undefined;
-  } else {
-    ctx.response.body = {
-      result: 'fail',
-      msg: '上传文件格式有误'
+      msg: ''
     }
   }
 };
-
 
 module.exports = {
   'POST /createAttackJson': createAttackJson,
   'GET /downloadAttackJson': downloadAttackJson,
   'POST /uploadConfigJson': uploadConfigJson,
-  'GET /getConfigData': getConfigData
+  'POST /updateIPRemark': updateIPRemark
 };

@@ -7,6 +7,24 @@
         :data="projects"
       >
         <el-table-column
+          label="项目名"
+          prop="name"
+          width="200"
+        >
+        </el-table-column>
+
+        <el-table-column
+          label="说明"
+          prop="remark"
+        >
+          <template slot-scope="scope">
+            <span class="project-remark">
+              {{scope.row.remark }} <i class="el-icon-edit" @click="showEdit(scope.row)"></i>
+            </span>
+
+          </template>
+        </el-table-column>
+        <el-table-column
           label="时间"
           prop="date"
           width="160"
@@ -18,32 +36,15 @@
           })()}}
           </template>
         </el-table-column>
-        <el-table-column
-          label="项目名"
-          prop="name"
-          width="200"
-        >
-        </el-table-column>
-
-        <el-table-column
-          label="说明"
-          prop="remark"
-        >
-        </el-table-column>
-
         <el-table-column label="操作" width="320">
           <template slot-scope="scope">
             <el-button
               size="mini"
-              @click="openProject(scope.row.id)">配置
+              @click="openProject(scope.row)">配置
             </el-button>
             <el-button
               size="mini"
               @click="openResult(scope.row.id)">结果
-            </el-button>
-            <el-button
-              size="mini"
-              @click="showEdit(scope.row)">修改
             </el-button>
             <el-button
               size="mini"
@@ -85,7 +86,7 @@
       title="修改项目"
       :visible.sync="edit.show"
       width="50%">
-      <el-input v-model="edit.name"></el-input>
+      <el-input v-model="edit.name" disabled></el-input>
       <br>
       <br>
       <el-input v-model="edit.remark" type="textarea"></el-input>
@@ -134,8 +135,8 @@
     methods: {
       getProjects() {
         let _this = this;
-
         axios.get('/project').then((res) => {
+//        axios.get('http://localhost:3000/project').then((res) => {
             if(res.data.result === 'success') {
               _this.projects = res.data.projects;
             } else {
@@ -227,8 +228,9 @@
           });
         });
       },
-      openProject(id) {
-          this.$router.push('/Config/' + id);
+      openProject(row) {
+          window.project = row.name;
+          this.$router.push('/Config/' + row.id);
       },
       openResult(id) {
           this.$router.push('/Result/' + id);
@@ -247,6 +249,14 @@
 
     p {
       text-align: right;
+    }
+    .project-remark {
+      cursor: default;
+      &:hover>.el-icon-edit {display: inline-block;}
+    }
+    .el-icon-edit {
+      cursor: pointer;
+      display: none;
     }
   }
 </style>

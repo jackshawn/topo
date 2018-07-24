@@ -2,7 +2,7 @@
   <div class="header-wrap">
     <div class="header">
       <div class="categary">
-        <div class="tab">XXX 系统</div>
+        <div class="tab">网络设备拓扑图展示系统</div>
 <!--        <template v-if="categary == 'project'">
           <div class="tab active">
             <router-link to="/Project" class="categary-name"><Icon icon="project" class="categary-icon"></Icon> 项目管理</router-link>

@@ -11,7 +11,7 @@
  Target Server Version : 50721
  File Encoding         : utf-8
 
- Date: 07/12/2018 15:58:16 PM
+ Date: 07/24/2018 15:28:58 PM
 */
 
 SET NAMES utf8;
@@ -31,7 +31,7 @@ CREATE TABLE `configs` (
   `delay` varchar(255) NOT NULL,
   `way` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 --  Table structure for `projects`
@@ -44,7 +44,7 @@ CREATE TABLE `projects` (
   `remark` varchar(255) NOT NULL,
   `user` varchar(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 --  Table structure for `results`
@@ -53,10 +53,12 @@ DROP TABLE IF EXISTS `results`;
 CREATE TABLE `results` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `projectId` int(11) NOT NULL,
-  `content` text NOT NULL,
+  `content` mediumtext NOT NULL,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `type` varchar(255) NOT NULL,
+  `remark` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 --  Table structure for `users`
@@ -67,6 +69,6 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;

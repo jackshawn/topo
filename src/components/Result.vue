@@ -1,18 +1,34 @@
 <template>
   <div class="config-wrap">
     <Name/>
-    <BreadCrumb categary="result"></BreadCrumb>
+    <BreadCrumb categary="result" :id="id"></BreadCrumb>
     <div class="result">
       <el-table
         :data="results"
+        @selection-change="handleSelectionChange"
       >
+        <el-table-column
+          type="selection"
+          width="55">
+        </el-table-column>
         <el-table-column
           type="index">
         </el-table-column>
         <el-table-column
+          label="配置"
+          prop="remark"
+        >
+        </el-table-column>
+        <el-table-column
+          label=""
+          prop="type"
+          width="80"
+        >
+        </el-table-column>
+        <el-table-column
           label="时间"
           prop="date"
-
+          width="180"
         >
           <template slot-scope="scope">
             {{(function() {
@@ -28,18 +44,79 @@
               size="mini"
               @click="openTopo(scope.row.id)">查看
             </el-button>
-<!--            <el-button
-              size="mini"
-              type="danger"
-              @click="delConfig(scope.row.id)">删除
-            </el-button>-->
+            <!--            <el-button
+                          size="mini"
+                          type="danger"
+                          @click="delConfig(scope.row.id)">删除
+                        </el-button>-->
           </template>
         </el-table-column>
       </el-table>
       <p>
-        <el-button @click="toUpload" size="small">导入结果</el-button>
+        <el-button v-show="showMultiple" @click="openTopo()" size="small">查看选中结果</el-button>
+        <el-button @click="showScanImport = true" size="small">导入扫描结果</el-button>
+        <el-button @click="showAttackImport = true" size="small">导入攻击结果</el-button>
       </p>
+
+
     </div>
+    <el-dialog
+      :visible.sync="showScanImport"
+      width="600px">
+
+      <div class="upload-panel">
+        <el-upload
+          :on-success="uploaded"
+          drag
+          multiple
+          accept=".json"
+          action="/uploadConfigJson"
+          :data="{projectId: id, type: 'scan', remark: scanRemark}"
+        >
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传.json文件</div>
+        </el-upload>
+        <el-input
+          class="input-remark"
+          placeholder="输入描述"
+          type="textarea"
+          :rows="2"
+          size="small"
+          clearable
+          v-model="scanRemark">
+        </el-input>
+      </div>
+
+    </el-dialog>
+    <el-dialog
+      :visible.sync="showAttackImport"
+      width="600px">
+      <div class="upload-panel">
+        <el-upload
+          :on-success="uploaded"
+          class="upload-panel"
+          drag
+          multiple
+          accept=".json"
+          action="/uploadConfigJson"
+          :data="{projectId: id, type: 'attack', remark: attackRemark}"
+        >
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传.json文件</div>
+        </el-upload>
+        <el-input
+          class="input-remark"
+          placeholder="输入描述"
+          type="textarea"
+          :rows="2"
+          size="small"
+          clearable
+          v-model="attackRemark">
+        </el-input>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -70,19 +147,23 @@
 //            way: '1'
 //          },
         ],
+        showScanImport: false,
+        showAttackImport: false,
+        showMultiple: false,
+        scanRemark: '',
+        attackRemark: '',
+        selectedID: ''
       }
     },
+
     methods: {
       getResults() {
         let _this = this;
 
         axios.get('/results/' + _this.id).then((res) => {
+//        axios.get('http://localhost:3000/results/' + _this.id).then((res) => {
           if(res.data.result === 'success') {
-            if(res.data.data.length === 0) {
-              this.$router.push('/Topo?projectID=' + _this.id);
-            } else {
-              _this.results = res.data.data;
-            }
+            _this.results = res.data.data;
           } else {
             _this.$message(res.data.msg)
           }
@@ -90,13 +171,32 @@
           console.log(error)
         });
       },
-      openTopo(id) {
+      openTopo(d) {
         let _this = this;
+        let id = d || this.selectedID;
         this.$router.push(`/Topo?id=${id}&projectID=` + _this.id);
       },
-      toUpload() {
+      uploaded() {
+//        let _this = this;
+        this.$message('数据导入成功');
+//        this.showScanImport = false;
+//        this.showAttackImport = false;
+
+        setTimeout(() => {
+          location.reload()
+        }, 400)
+      },
+      handleSelectionChange(val) {
         let _this = this;
-        this.$router.push('/Topo?projectID=' + _this.id);
+        let arr = []
+
+        this.showMultiple = val.length > 1;
+        if(val.length > 1) {
+          val.forEach(i => {
+            arr.push(i.id)
+          })
+          _this.selectedID = arr.sort().toString()
+        }
       }
     },
     mounted() {
@@ -114,4 +214,14 @@
       text-align: right
     }
   }
+  .upload-panel {
+    width: 360px;
+    margin: 20px auto;
+  }
+
+  .input-remark {
+    margin-top: 10px;
+  }
 </style>
+
+

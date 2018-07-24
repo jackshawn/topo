@@ -7,7 +7,9 @@ let result = db.define('result', {
         primaryKey: true
     },
     projectId: Sequelize.STRING,
-    content: Sequelize.TEXT,
+    content: Sequelize.TEXT('medium'),
+    remark: Sequelize.STRING,
+    type: Sequelize.STRING,
     date: Sequelize.DATE,
 }, {
     timestamps: false

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['device', index % 2 == 1 ? 'device-bottom' : '', info.attacked ? 'device-attacked' : '']" :style="{left: (index + 1) * 100 + 'px'}">
+  <div :class="['device', info.attacked ? 'device-attacked' : '']">
     <div class="device-container">
       <div class="device-logo">
         <Icon class="device-type" :icon="info.type"></Icon>
@@ -9,9 +9,10 @@
       </div>
       <div class="device-info">
         <div class="device-ip">IP:{{info.ip}}</div>
-        <div class="device-port">PORT:<span
+        <div class="device-port" v-show="info.port.length > 0">PORT:<span
           @click="add(info.ip, item)"
           v-for="(item, index) in info.port">{{item}}{{index == info.port.length - 1 ? '' : ','}}</span></div>
+        <div class="device-remark">{{info.remark}} <i class="el-icon-edit" @click="toShowEdit(info)"></i></div>
       </div>
 
     </div>
@@ -35,6 +36,9 @@
     methods: {
       add(ip, port) {
         this.$emit('add', ip, port)
+      },
+      toShowEdit(info) {
+        this.$emit('showEdit', info)
       }
     }
   }
@@ -46,19 +50,9 @@
   $attacked: #f56b6b;
 
   .device {
-    width: 2px;
-    height: 40px;
-    background: $normal;
-
-    position: absolute;
-    top: -40px;
-    left: 100px;
-
     .device-container {
 
-      position: absolute;
-      top: -110px;
-      transform: translateX(-50%);
+
       border: 1px solid $normal;
       border-radius: 4px;
       background: #fff;
@@ -81,8 +75,8 @@
 
         // os logo
         .device-os {
-          width: 22px;
-          height: 22px;
+          width: 32px;
+          height: 32px;
 
           fill: $normal
         }
@@ -100,12 +94,9 @@
 
         background: $normal;
         color: #fff;
-        font-size: 12px;
+        font-size: 14px;
         line-height: 1.5em;
         padding: 5px 15px;
-
-        .device-ip {
-        }
 
         .device-port span {
           cursor: pointer;
@@ -113,15 +104,11 @@
             text-decoration: underline;
           }
         }
+
+        .el-icon-edit {cursor: pointer}
       }
 
     }
-  }
-
-  .device-bottom {
-    top: 0;
-
-    .device-container {top: 42px;}
   }
 
   .device-attacked {

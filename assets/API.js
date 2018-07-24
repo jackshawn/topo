@@ -115,6 +115,17 @@ const API = [
     }
   },
 
+  // 获取项目名称
+  {
+    url: '/projectName',
+    type: 'GET',
+    req: 'id',
+    res: {
+      result: 'success',
+      name: ''
+    }
+  },
+
   //--------------------配置--------------------------
   // 获取
   {
@@ -218,16 +229,6 @@ const API = [
     }
   },
 
-  // 上传扫描与攻击结果
-  {
-    url: '/getConfigData',
-    type: 'GET',
-    res: {
-      result: 'success',
-      topo: ''
-    }
-  },
-
   //--------------------拓扑图--------------------------
   // 生成攻击脚本
   {
@@ -244,6 +245,21 @@ const API = [
   {
     url: '/downloadAttackJson',
     type: 'GET'
+  },
+
+  // ip添加备注信息
+  {
+    url: '/updateIPRemark',
+    type: 'POST',
+    req: {
+      id: [],
+      ip: '',
+      remark: ''
+    },
+    res: {
+      result: 'success',
+      msg: ''
+    }
   },
 ]
 

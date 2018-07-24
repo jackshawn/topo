@@ -72,9 +72,26 @@ let deleteProject = async (ctx, next) => {
   }
 };
 
+// 获取项目名称
+let getProjectName = async (ctx, next) => {
+  let id = ctx.params.id;
+  let res = await project.findAll({
+    where: {
+      id: id
+    }
+  });
+  console.log('get project name')
+
+  ctx.response.body = JSON.stringify({
+    result: 'success',
+    name: res.length > 0 ? res[0].name : ''
+  });
+
+};
 
 module.exports = {
   'GET /project': getProject,
+  'GET /projectName/:id': getProjectName,
   'POST /project': postProject,
   'DELETE /project/:id': deleteProject
 };
